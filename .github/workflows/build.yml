@@ -9,7 +9,7 @@ jobs:
        - id: calculate_iterations
          run: |
           iterations=" ["
-          for i in {1..50}
+          for i in {1..80}
           do
             if [ $i == 1 ]
             then
@@ -43,6 +43,7 @@ jobs:
 
         echo "$MY_JSON_SECRET" > key.json
         ./gradlew compileDebugKotlin
+        ./gradlew clean compileDebugKotlin --no-build-cache
         
       env:
         MY_JSON_SECRET: ${{ secrets.KEY }}
