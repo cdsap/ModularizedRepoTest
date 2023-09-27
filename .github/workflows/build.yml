@@ -2,9 +2,33 @@ on:
   push:
     branches: [ main]
 jobs:
-  my-job:
+  iterations:
+    name: Generate versions
     runs-on: ubuntu-latest
-
+    steps:
+       - id: calculate_iterations
+         run: |
+          iterations=" ["
+          for i in {1..50}
+          do
+            if [ $i == 1 ]
+            then
+                iterations="$iterations \"$i\""
+            else
+              iterations="$iterations  , \"$i\""
+            fi
+          done
+          iterations="$iterations ]"
+          echo "iterations=$iterations" >> $GITHUB_OUTPUT
+          echo $GITHUB_OUTPUT
+    outputs:
+       iterations: ${{ steps.calculate_iterations.outputs.iterations }}
+  my-job:
+    needs: [iterations]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        runs:   ${{ fromJson(needs.iterations.outputs.iterations) }} 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
