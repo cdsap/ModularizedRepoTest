@@ -1,0 +1,28 @@
+ROOT_FOLDER="."
+
+# Dynamically get module folders using find
+MODULE_FOLDERS=($(find "$ROOT_FOLDER" -type d -path "*/main/kotlin/com/performance"))
+
+# Randomly select a module folder
+RANDOM_MODULE=${MODULE_FOLDERS[$RANDOM % ${#MODULE_FOLDERS[@]}]}
+
+# Get a list of Kotlin files in the selected module
+KOTLIN_FILES=("$RANDOM_MODULE"/*.kt)
+
+# Check if there are Kotlin files in the selected module
+if [ ${#KOTLIN_FILES[@]} -eq 0 ]; then
+  echo "No Kotlin files found in $RANDOM_MODULE. Exiting."
+  exit 1
+fi
+
+# Randomly select a Kotlin file
+RANDOM_FILE=${KOTLIN_FILES[$RANDOM % ${#KOTLIN_FILES[@]}]}
+
+# Generate a random update (you can modify this part according to your needs)
+RANDOM_UPDATE=$(date +%s%N | sha256sum | base64 | head -c 32)
+RANDOM_FUNCTION="fun $RANDOM_UPDATE() { println (232) }"
+# Update the selected file
+echo "Updating $RANDOM_FILE with $RANDOM_FUNCTION"
+echo "$RANDOM_FUNCTION" >> "$RANDOM_FILE"
+
+echo "Update complete."
