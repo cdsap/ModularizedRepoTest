@@ -5,18 +5,8 @@ class Module_3_82_2 {
         val value = "Module_3_82_2"
         println("module_3_82")
         
-        val dependencyClass0 = com.performance.Module_2_64_1().module_2_64_1()
+        val dependencyClass0 = com.performance.Module_2_77_46().module_2_77_46()
         println(dependencyClass0)
-        val dependencyClass1 = com.performance.Module_2_72_1().module_2_72_1()
-        println(dependencyClass1)
-        val dependencyClass2 = com.performance.Module_2_66_1().module_2_66_1()
-        println(dependencyClass2)
-        val dependencyClass3 = com.performance.Module_2_74_1().module_2_74_1()
-        println(dependencyClass3)
-        val dependencyClass4 = com.performance.Module_2_67_1().module_2_67_1()
-        println(dependencyClass4)
-        val dependencyClass5 = com.performance.Module_2_65_1().module_2_65_1()
-        println(dependencyClass5)
 
         return value
     }

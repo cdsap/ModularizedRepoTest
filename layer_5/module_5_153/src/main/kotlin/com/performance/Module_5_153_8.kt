@@ -1,0 +1,55 @@
+package com.performance
+
+class Module_5_153_8 {
+    fun module_5_153_8() : String {
+        val value = "Module_5_153_8"
+        println("module_5_153")
+        
+        val dependencyClass0 = com.performance.Module_4_116_38().module_4_116_38()
+        println(dependencyClass0)
+        val dependencyClass1 = com.performance.Module_4_119_6().module_4_119_6()
+        println(dependencyClass1)
+        val dependencyClass2 = com.performance.Module_4_114_35().module_4_114_35()
+        println(dependencyClass2)
+        val dependencyClass3 = com.performance.Module_4_150_35().module_4_150_35()
+        println(dependencyClass3)
+        val dependencyClass4 = com.performance.Module_4_137_64().module_4_137_64()
+        println(dependencyClass4)
+        val dependencyClass5 = com.performance.Module_4_110_3().module_4_110_3()
+        println(dependencyClass5)
+        val dependencyClass6 = com.performance.Module_4_152_10().module_4_152_10()
+        println(dependencyClass6)
+        val dependencyClass7 = com.performance.Module_4_120_97().module_4_120_97()
+        println(dependencyClass7)
+        val dependencyClass8 = com.performance.Module_4_120_108().module_4_120_108()
+        println(dependencyClass8)
+        val dependencyClass9 = com.performance.Module_4_144_72().module_4_144_72()
+        println(dependencyClass9)
+        val dependencyClass10 = com.performance.Module_4_121_67().module_4_121_67()
+        println(dependencyClass10)
+        val dependencyClass11 = com.performance.Module_4_125_1().module_4_125_1()
+        println(dependencyClass11)
+        val dependencyClass12 = com.performance.Module_4_128_113().module_4_128_113()
+        println(dependencyClass12)
+        val dependencyClass13 = com.performance.Module_4_150_48().module_4_150_48()
+        println(dependencyClass13)
+        val dependencyClass14 = com.performance.Module_4_144_37().module_4_144_37()
+        println(dependencyClass14)
+        val dependencyClass15 = com.performance.Module_4_115_16().module_4_115_16()
+        println(dependencyClass15)
+        val dependencyClass16 = com.performance.Module_4_131_1().module_4_131_1()
+        println(dependencyClass16)
+        val dependencyClass17 = com.performance.Module_4_134_29().module_4_134_29()
+        println(dependencyClass17)
+        val dependencyClass18 = com.performance.Module_4_128_74().module_4_128_74()
+        println(dependencyClass18)
+        val dependencyClass19 = com.performance.Module_4_114_21().module_4_114_21()
+        println(dependencyClass19)
+        val dependencyClass20 = com.performance.Module_4_140_15().module_4_140_15()
+        println(dependencyClass20)
+        val dependencyClass21 = com.performance.Module_4_134_9().module_4_134_9()
+        println(dependencyClass21)
+
+        return value
+    }
+}

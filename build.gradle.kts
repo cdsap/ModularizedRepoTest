@@ -29,18 +29,21 @@ talaiot {
         customPublishers(BiqQueryPublisher())
     }
 }
-data class ModuleDuration(val module: String, val duration: Long, val durationModule: Long)
+data class ModuleDuration(val module: String, val executed: Boolean, val duration: Long, val durationModule: Long)
 class BiqQueryPublisher : Publisher {
     override fun publish(report: ExecutionReport) {
         val duration = report.durationMs
         val durations = mutableListOf<ModuleDuration>()
         report.tasks!!.groupBy { it.module }.forEach {
 
-            durations.add(ModuleDuration(it.key, duration?.toLong()!!, it.value.sumOf { it.ms }))
+            durations.add(ModuleDuration(it.key,
+                it.value.any{ it.state == io.github.cdsap.talaiot.entities.TaskMessageState.EXECUTED},
+                duration?.toLong()!!,
+                it.value.sumOf { it.ms }))
         }
 
         val table =
-            com.google.cloud.bigquery.TableId.of("mobile_build_metrics", "test2")
+            com.google.cloud.bigquery.TableId.of("mobile_build_metrics", "test3")
         val client = com.google.cloud.bigquery.BigQueryOptions.newBuilder()
             .setCredentials(
                 com.google.auth.oauth2.GoogleCredentials.fromStream(
@@ -56,6 +59,7 @@ class BiqQueryPublisher : Publisher {
              val rowContent = mutableMapOf<String, Any>()
              rowContent["module"] = it.module
              rowContent["duration"] = it.duration
+             rowContent["executed"] = it.executed
              rowContent["durationModule"] = it.durationModule
              row.add(rowContent)
          }
