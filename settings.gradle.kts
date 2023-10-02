@@ -4,11 +4,20 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
-        maven ( url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") )
 
     }
 }
-rootProject.name="project"
+plugins {
+    id("com.gradle.common-custom-user-data-gradle-plugin") version "1.8.1"
+    id("com.gradle.enterprise") version "3.13.4"
+}
+gradleEnterprise {
+    server = "http://ge.solutions-team.gradle.com"
+    allowUntrustedServer = true
+    buildScan {
+        publishAlways()
+    }
+}
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {

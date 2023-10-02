@@ -19,7 +19,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version ("1.9.10") apply false
     id("com.android.application") version "8.1.1" apply false
     id("com.android.library") version "8.1.1" apply false
-    id("io.github.cdsap.talaiot") version "2.0.3-SNAPSHOT"
+    id("io.github.cdsap.talaiot.plugin.base") version "2.0.3"
 }
 
 talaiot {
@@ -29,21 +29,31 @@ talaiot {
         customPublishers(BiqQueryPublisher())
     }
 }
-data class ModuleDuration(val module: String, val executed: Boolean, val duration: Long, val durationModule: Long)
+data class ModuleDuration(
+    val module: String,
+    val executed: Boolean,
+    val duration: Long,
+    val durationModule: Long
+)
+
 class BiqQueryPublisher : Publisher {
     override fun publish(report: ExecutionReport) {
         val duration = report.durationMs
         val durations = mutableListOf<ModuleDuration>()
         report.tasks!!.groupBy { it.module }.forEach {
-
-            durations.add(ModuleDuration(it.key,
-                it.value.any{ it.state == io.github.cdsap.talaiot.entities.TaskMessageState.EXECUTED},
-                duration?.toLong()!!,
-                it.value.sumOf { it.ms }))
+            val a =
+                it.value.filter { it.state == io.github.cdsap.talaiot.entities.TaskMessageState.EXECUTED }
+            println("${it.key}  -- ${a.size}")
+            durations.add(
+                ModuleDuration(it.key,
+                    it.value.any { it.state == io.github.cdsap.talaiot.entities.TaskMessageState.EXECUTED },
+                    duration?.toLong()!!,
+                    it.value.sumOf { it.ms })
+            )
         }
 
         val table =
-            com.google.cloud.bigquery.TableId.of("mobile_build_metrics", "test3")
+            com.google.cloud.bigquery.TableId.of("mobile_build_metrics", "test5")
         val client = com.google.cloud.bigquery.BigQueryOptions.newBuilder()
             .setCredentials(
                 com.google.auth.oauth2.GoogleCredentials.fromStream(
@@ -55,14 +65,14 @@ class BiqQueryPublisher : Publisher {
             .build()
             .service
         val row = mutableListOf<Map<String, Any>>()
-         durations.forEach {
-             val rowContent = mutableMapOf<String, Any>()
-             rowContent["module"] = it.module
-             rowContent["duration"] = it.duration
-             rowContent["executed"] = it.executed
-             rowContent["durationModule"] = it.durationModule
-             row.add(rowContent)
-         }
+        durations.forEach {
+            val rowContent = mutableMapOf<String, Any>()
+            rowContent["module"] = it.module
+            rowContent["duration"] = it.duration
+            rowContent["executed"] = it.executed
+            rowContent["durationModule"] = it.durationModule
+            row.add(rowContent)
+        }
         try {
             val insertRequestBuilder = InsertAllRequest.newBuilder(table)
             for (rowa in row) {
@@ -70,7 +80,7 @@ class BiqQueryPublisher : Publisher {
                 insertRequestBuilder.addRow(rowa)
             }
 
-            val response = client.insertAll( insertRequestBuilder.build())
+            val response = client.insertAll(insertRequestBuilder.build())
 
 
             if (response.hasErrors()) {
@@ -91,4 +101,8 @@ class BiqQueryPublisher : Publisher {
         }
     }
 }
+
+
+
+
 
