@@ -65,7 +65,7 @@ class BiqQueryPublisher : Publisher {
         }
 
         val table =
-            com.google.cloud.bigquery.TableId.of("mobile_build_metrics", "builds2")
+            com.google.cloud.bigquery.TableId.of("mobile_build_metrics", "builds4")
         val client = com.google.cloud.bigquery.BigQueryOptions.newBuilder()
             .setCredentials(
                 com.google.auth.oauth2.GoogleCredentials.fromStream(
