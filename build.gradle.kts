@@ -65,7 +65,7 @@ class BiqQueryPublisher : Publisher {
         }
 
         val table =
-            com.google.cloud.bigquery.TableId.of("mobile_build_metrics", "builds")
+            com.google.cloud.bigquery.TableId.of("mobile_build_metrics", "builds2")
         val client = com.google.cloud.bigquery.BigQueryOptions.newBuilder()
             .setCredentials(
                 com.google.auth.oauth2.GoogleCredentials.fromStream(
@@ -83,7 +83,7 @@ class BiqQueryPublisher : Publisher {
             rowContent["duration"] = it.duration
             rowContent["executed"] = it.executed
             rowContent["durationModule"] = it.durationModule
-            rowContent["modulesExecuted"] = it.durationModule
+            rowContent["modulesExecuted"] = it.modulesExecuted
 
             row.add(rowContent)
         }
