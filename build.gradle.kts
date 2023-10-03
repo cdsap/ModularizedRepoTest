@@ -33,27 +33,39 @@ data class ModuleDuration(
     val module: String,
     val executed: Boolean,
     val duration: Long,
-    val durationModule: Long
+    val durationModule: Long,
+    val modulesExecuted: Int
 )
 
 class BiqQueryPublisher : Publisher {
     override fun publish(report: ExecutionReport) {
         val duration = report.durationMs
         val durations = mutableListOf<ModuleDuration>()
+        var modulesUpdated = 0
+        report.tasks?.groupBy { it.module }?.forEach {
+            if(it.value.any { it.state == io.github.cdsap.talaiot.entities.TaskMessageState.EXECUTED }){
+                modulesUpdated++
+            }
+        }
+
         report.tasks!!.groupBy { it.module }.forEach {
             val a =
-                it.value.filter { it.state == io.github.cdsap.talaiot.entities.TaskMessageState.EXECUTED }
-            println("${it.key}  -- ${a.size}")
+                it.value.filter {
+                    it.state == io.github.cdsap.talaiot.entities.TaskMessageState.EXECUTED }
+            println("${it.key}  -- ${a.size} -- $modulesUpdated")
             durations.add(
-                ModuleDuration(it.key,
+                ModuleDuration(
+                    it.key,
                     it.value.any { it.state == io.github.cdsap.talaiot.entities.TaskMessageState.EXECUTED },
                     duration?.toLong()!!,
-                    it.value.sumOf { it.ms })
+                    it.value.sumOf { it.ms },
+                    modulesUpdated
+                )
             )
         }
 
         val table =
-            com.google.cloud.bigquery.TableId.of("mobile_build_metrics", "test5")
+            com.google.cloud.bigquery.TableId.of("mobile_build_metrics", "builds")
         val client = com.google.cloud.bigquery.BigQueryOptions.newBuilder()
             .setCredentials(
                 com.google.auth.oauth2.GoogleCredentials.fromStream(
@@ -71,12 +83,14 @@ class BiqQueryPublisher : Publisher {
             rowContent["duration"] = it.duration
             rowContent["executed"] = it.executed
             rowContent["durationModule"] = it.durationModule
+            rowContent["modulesExecuted"] = it.durationModule
+
             row.add(rowContent)
         }
         try {
             val insertRequestBuilder = InsertAllRequest.newBuilder(table)
             for (rowa in row) {
-                println(rowa)
+
                 insertRequestBuilder.addRow(rowa)
             }
 
