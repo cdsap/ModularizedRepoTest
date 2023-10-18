@@ -42,39 +42,40 @@ jobs:
       run: |
 
         echo "$MY_JSON_SECRET" > key.json
-        ./gradlew compileDebugKotlin
+        ./gradlew lintDebug
         ./gradlew clean compileDebugKotlin
         bash replacer
-        ./gradlew compileDebugKotlin
+        ./gradlew lintDebug
         bash replacer
-        ./gradlew compileDebugKotlin
+        ./gradlew lintDebug
         bash replacer
-        ./gradlew compileDebugKotlin
+        ./gradlew lintDebug
         bash replacer
-        ./gradlew compileDebugKotlin
+        ./gradlew lintDebug
         bash replacer
-        ./gradlew compileDebugKotlin
+        ./gradlew lintDebug
         bash replacer
-        ./gradlew compileDebugKotlin
+        ./gradlew lintDebug
         bash replacer
-        ./gradlew compileDebugKotlin
+        ./gradlew lintDebug
         bash replacer
-        ./gradlew compileDebugKotlin
+        ./gradlew lintDebug
         bash replacer
-        ./gradlew compileDebugKotlin
+        ./gradlew lintDebug
         bash replacer
-        ./gradlew compileDebugKotlin
+        ./gradlew lintDebug
         bash replacer
-        ./gradlew compileDebugKotlin
+        ./gradlew lintDebug
         bash replacer
-        ./gradlew compileDebugKotlin
+        ./gradlew lintDebug
         bash replacer
-        ./gradlew compileDebugKotlin
+        ./gradlew lintDebug
         bash replacer
-        ./gradlew compileDebugKotlin
+        ./gradlew lintDebug
         bash replacer
-        ./gradlew compileDebugKotlin
+        ./gradlew lintDebug
         bash replacer
-        ./gradlew compileDebugKotlin
+        ./gradlew lintDebug
       env:
         MY_JSON_SECRET: ${{ secrets.KEY }}
+        GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GE_API_KEY }}
