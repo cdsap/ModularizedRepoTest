@@ -1,19 +1,18 @@
 import com.google.cloud.bigquery.InsertAllRequest
 import io.github.cdsap.talaiot.entities.ExecutionReport
+import io.github.cdsap.talaiot.entities.TaskMessageState
 import io.github.cdsap.talaiot.publisher.Publisher
-
 
 buildscript {
     repositories {
         mavenCentral()
-        //   mavenLocal()
     }
     dependencies {
-        //classpath(platform("com.google.cloud:libraries-bom:26.22.0"))
         classpath("com.google.cloud:google-cloud-bigquery:2.7.0")
 
     }
 }
+
 plugins {
     id("com.autonomousapps.dependency-analysis") version "1.21.0"
     id("org.jetbrains.kotlin.jvm") version ("1.9.10") apply false
@@ -25,10 +24,10 @@ plugins {
 talaiot {
     publishers {
         jsonPublisher = true
-
         customPublishers(BiqQueryPublisher())
     }
 }
+
 data class ModuleDuration(
     val module: String,
     val executed: Boolean,
@@ -40,43 +39,70 @@ data class ModuleDuration(
 class BiqQueryPublisher : Publisher {
     override fun publish(report: ExecutionReport) {
         val duration = report.durationMs
-        val durations = mutableListOf<ModuleDuration>()
-        var modulesUpdated = 0
-        report.tasks?.groupBy { it.module }?.forEach {
-            if(it.value.any { it.state == io.github.cdsap.talaiot.entities.TaskMessageState.EXECUTED }){
-                modulesUpdated++
+        val filePath = "./key.json"
+        if (File(filePath).exists()) {
+            val db = "mobile_build_metrics"
+            val tableName = "builds4"
+            var modulesUpdated = 0
+            report.tasks?.groupBy { it.module }?.forEach {
+                if (it.value.any { it.state == io.github.cdsap.talaiot.entities.TaskMessageState.EXECUTED }) {
+                    modulesUpdated++
+                }
             }
-        }
 
+            val metricsByModule = metricsByModule(report, duration, modulesUpdated)
+            val rows = mapRow(metricsByModule)
+            val table =
+                com.google.cloud.bigquery.TableId.of(db, tableName)
+            val client = com.google.cloud.bigquery.BigQueryOptions.newBuilder()
+                .setCredentials(
+                    com.google.auth.oauth2.GoogleCredentials.fromStream(
+                        java.io.FileInputStream(
+                            filePath
+                        )
+                    )
+                )
+                .build()
+                .service
+            try {
+                val insertRequestBuilder = InsertAllRequest.newBuilder(table)
+                for (row in rows) {
+                    insertRequestBuilder.addRow(row)
+                }
+                val response = client.insertAll(insertRequestBuilder.build())
+                if (response.hasErrors()) {
+                    response.insertErrors.forEach { (t, u) -> println("Response error for key: $t, value: $u") }
+                } else {
+                    println("Build information published to BigQuery")
+                }
+
+            } catch (e: com.google.cloud.bigquery.BigQueryException) {
+                println("Insert operation not performed $e")
+            }
+        } else {
+            println("Credentials $filePath not found")
+        }
+    }
+
+    private fun metricsByModule(report: ExecutionReport, duration: String?, modulesUpdated: Int):
+        List<ModuleDuration> {
+        val metricsByModule = mutableListOf<ModuleDuration>()
         report.tasks!!.groupBy { it.module }.forEach {
-            val a =
-                it.value.filter {
-                    it.state == io.github.cdsap.talaiot.entities.TaskMessageState.EXECUTED }
-            println("${it.key}  -- ${a.size} -- $modulesUpdated")
-            durations.add(
+            metricsByModule.add(
                 ModuleDuration(
                     it.key,
-                    it.value.any { it.state == io.github.cdsap.talaiot.entities.TaskMessageState.EXECUTED },
+                    it.value.any { it.state == TaskMessageState.EXECUTED },
                     duration?.toLong()!!,
                     it.value.sumOf { it.ms },
                     modulesUpdated
                 )
             )
         }
+        return metricsByModule
+    }
 
-        val table =
-            com.google.cloud.bigquery.TableId.of("mobile_build_metrics", "builds4")
-        val client = com.google.cloud.bigquery.BigQueryOptions.newBuilder()
-            .setCredentials(
-                com.google.auth.oauth2.GoogleCredentials.fromStream(
-                    java.io.FileInputStream(
-                        "./key.json"
-                    )
-                )
-            )
-            .build()
-            .service
-        val row = mutableListOf<Map<String, Any>>()
+    private fun mapRow(durations: List<ModuleDuration>): List<Map<String, Any>> {
+        val rows = mutableListOf<Map<String, Any>>()
         durations.forEach {
             val rowContent = mutableMapOf<String, Any>()
             rowContent["module"] = it.module
@@ -84,35 +110,9 @@ class BiqQueryPublisher : Publisher {
             rowContent["executed"] = it.executed
             rowContent["durationModule"] = it.durationModule
             rowContent["modulesExecuted"] = it.modulesExecuted
-
-            row.add(rowContent)
+            rows.add(rowContent)
         }
-        try {
-            val insertRequestBuilder = InsertAllRequest.newBuilder(table)
-            for (rowa in row) {
-
-                insertRequestBuilder.addRow(rowa)
-            }
-
-            val response = client.insertAll(insertRequestBuilder.build())
-
-
-            if (response.hasErrors()) {
-                response.insertErrors.forEach { l, bigQueryErrors ->
-                    println(l)
-                    bigQueryErrors.forEach {
-                        println(it.debugInfo)
-                        println(it.location)
-                        println(it.reason)
-                        println(it.message)
-                    }
-                }
-                response.insertErrors.forEach { (t, u) -> println("Response error for key: $t, value: $u") }
-            }
-            println("Insert operation performed successfully")
-        } catch (e: com.google.cloud.bigquery.BigQueryException) {
-            println("Insert operation not performed $e")
-        }
+        return rows
     }
 }
 

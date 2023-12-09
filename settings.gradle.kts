@@ -7,17 +7,7 @@ pluginManagement {
 
     }
 }
-plugins {
-    id("com.gradle.common-custom-user-data-gradle-plugin") version "1.8.1"
-    id("com.gradle.enterprise") version "3.15.1"
-}
-gradleEnterprise {
-    server = "http://ge.solutions-team.gradle.com"
-    allowUntrustedServer = true
-    buildScan {
-        publishAlways()
-    }
-}
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -25,8 +15,6 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-
-
 
 include (":layer_0:module_0_1")
 include (":layer_0:module_0_2")
